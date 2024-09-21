@@ -43,13 +43,16 @@ router.delete('/drivers/:id', driverController.deleteDriver);
 
 // Payment routes
 router.post('/payments', paymentController.createPayment);
+router.get('/payments', paymentController.getPayments);
 router.get('/payments/:id', paymentController.getPaymentById);
+router.get('/payments/:id/user', paymentController.getPaymentsByUser);
 
 // Review routes
 router.post('/reviews', reviewController.createReview);
+router.get('/reviews', reviewController.getReviews);
 router.get('/reviews/:id', reviewController.getReviewById);
 router.get('/reviews/:userId/user', reviewController.getReviewsByUser);
-router.get('/reviews/:userId', reviewController.getReviewsForUser);
+router.get('/reviews/:userId/driver', reviewController.getReviewsForUser);
 router.put('/reviews/:id', reviewController.updateReview);
 router.delete('/reviews/:id', reviewController.deleteReview);
 

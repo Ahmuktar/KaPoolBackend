@@ -14,6 +14,28 @@ const createPayment = async (req, res) => {
 };
 
 // Get a payment by ID
+const getPayments = async (req, res) => {
+  try {
+    const payment = await Payment.find().populate('ride_id');
+    if (!payment) return res.status(404).json({ message: 'Payment not found' });
+    res.json(payment);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get a payment by ID
+const getPaymentsByUser = async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id).populate('ride_id');;
+    if (!payment) return res.status(404).json({ message: 'Payment not found' });
+    res.json(payment);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get a payment by ID
 const getPaymentById = async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id);
@@ -26,5 +48,7 @@ const getPaymentById = async (req, res) => {
 
 module.exports = {
     createPayment,
-    getPaymentById
+    getPaymentById,
+    getPayments,
+    getPaymentsByUser
 }

@@ -13,7 +13,8 @@ const createRide = async (req, res) => {
 
 const getRides = async (req, res) => {
   try {
-    const ride = await Ride.find();
+    const ride = await Ride.find()
+    .populate('driver_id user_id')
     if (!ride) return res.status(404).json({ error: 'Ride not found' });
     res.json(ride);
   } catch (error) {

@@ -12,6 +12,18 @@ const createReview = async (req, res) => {
 };
 
 // Get a review by ID
+const getReviews = async (req, res) => {
+  try {
+    const review = await Review.find()
+      .populate('ride_id reviewer_id reviewee_id');
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    res.json(review);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+// Get a review by ID
 const getReviewById = async (req, res) => {
   try {
     const review = await Review.findById(req.params.id)
@@ -75,4 +87,5 @@ module.exports = {
     getReviewsByUser,
     updateReview,
     deleteReview,
+    getReviews
 }
