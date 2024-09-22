@@ -23,7 +23,7 @@ router.get('/rides/:id', rideController.getRideById);
 router.get('/rides', rideController.getRides);
 router.get('/rides/active', rideController.getActiveRides);
 // Update a ride's status
-router.patch('/rides/:id/status', rideController.updateRideStatus);
+router.put('/rides/:id/status', rideController.updateRideStatus);
 // Get all rides for a driver
 router.get('/drivers/:driverId/rides', rideController.getRidesByDriver);
 // Get all rides for a user
@@ -37,6 +37,7 @@ router.post('/drivers', driverController.createDriver);
 router.get('/drivers/:id', driverController.getDriverById);
 router.get('/drivers', driverController.getDrivers);
 router.put('/drivers/:id', driverController.updateDriver);
+router.put('/drivers/:driver_id/location', driverController.updateDriverLocation);
 router.put('/drivers/:id/availability', driverController.updateDriverAvailability);
 router.get('/drivers/available', driverController.getAvailableDrivers);
 router.delete('/drivers/:id', driverController.deleteDriver);
