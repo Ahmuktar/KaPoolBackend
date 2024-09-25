@@ -23,6 +23,17 @@ const getDriverById = async (req, res) => {
   }
 };
 
+
+const getDriverByDriverId = async (req, res) => {
+  try {
+    const driver = await Driver.findOne(req.params.driver_id).populate('driver_id');
+    if (!driver) return res.status(404).json({ error: 'Driver not found' });
+    res.json(driver);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // Get driver by ID or all drivers if no ID is provided
 const getDrivers = async (req, res) => {
   try {
@@ -54,6 +65,26 @@ const updateDriver = async (req, res) => {
   }
 };
 
+
+const updateDriverByDriverId = async (req, res) => {
+  try {
+    const { driver_id } = req.params; // Get driver_id from URL params
+
+    // Find the driver using driver_id and update location
+    const driver = await Driver.findOneAndUpdate(
+      {driver_id}, // Use driver_id directly from URL params
+      req.body,
+      { new: true, runValidators: true } // Ensures updated document is validated
+    );
+
+    if (!driver) return res.status(404).json({ error: 'Driver not found' });
+
+    // Respond with the updated driver data
+    res.json(driver);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
 
 const updateDriverLocation = async (req, res) => {
   try {

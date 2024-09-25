@@ -37,6 +37,7 @@ router.post('/drivers', driverController.createDriver);
 router.get('/drivers/:id', driverController.getDriverById);
 router.get('/drivers', driverController.getDrivers);
 router.put('/drivers/:id', driverController.updateDriver);
+router.put('/drivers/:driver_id/vehicle', driverController.updateDriverByDriverId);
 router.put('/drivers/:driver_id/location', driverController.updateDriverLocation);
 router.put('/drivers/:id/availability', driverController.updateDriverAvailability);
 router.get('/drivers/available', driverController.getAvailableDrivers);
