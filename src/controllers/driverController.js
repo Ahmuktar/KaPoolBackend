@@ -26,7 +26,7 @@ const getDriverById = async (req, res) => {
 
 const getDriverByDriverId = async (req, res) => {
   try {
-    const driver = await Driver.find({ driver_id }).populate('driver_id');
+    const driver = await Driver.find({ driver_id: req.params.driver_id }).populate('driver_id');
     if (!driver) return res.status(404).json({ error: 'Driver not found' });
     res.json(driver);
   } catch (error) {
