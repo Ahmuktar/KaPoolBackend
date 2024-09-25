@@ -35,6 +35,7 @@ router.delete('/rides/:id', rideController.deleteRide);
 // Driver routes
 router.post('/drivers', driverController.createDriver);
 router.get('/drivers/:id', driverController.getDriverById);
+router.get('/drivers/:driver_id/vehicle', driverController.getDriverByDriverId);
 router.get('/drivers', driverController.getDrivers);
 router.put('/drivers/:id', driverController.updateDriver);
 router.put('/drivers/:driver_id/vehicle', driverController.updateDriverByDriverId);
