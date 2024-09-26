@@ -1,15 +1,60 @@
+require('dotenv').config();
 const express = require('express');
 const Payment = require('../models/Payment');
+const axios = require('axios');
+const Ride = require('../models/Ride');
 const router = express.Router();
+
+const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
 
 // Create a payment
 const createPayment = async (req, res) => {
+  const { reference, ride_id } = req.body;
+
+  if (!reference) {
+    return res.status(400).json({ message: 'Reference is required' });
+  }
+
   try {
-    const newPayment = new Payment(req.body);
-    await newPayment.save();
-    res.status(201).json(newPayment);
+    // Make a request to Paystack's payment verification endpoint
+    const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+      headers: {
+        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+      }
+    });
+
+    const { status, data } = response;
+
+    if (status === 200 && data.status === 'success') {
+      const paymentDetails = data.data;
+
+      // Extract relevant payment information
+      const paymentData = {
+        transaction_id: paymentDetails.reference,
+        amount: paymentDetails.amount / 100, // Paystack amount is in kobo, convert to naira (or smallest currency unit)
+        status: 'paid',
+        email: paymentDetails.customer.email,
+        ride_id: ride_id
+      };
+
+      // Save payment to the database
+      const payment = new Payment(paymentData);
+      await payment.save();
+
+      return res.status(200).json({
+        message: 'Payment verified and saved successfully',
+        payment: paymentData,
+      });
+    } else {
+      return res.status(400).json({
+        message: 'Payment verification failed',
+      });
+    }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error verifying payment:', error.message);
+    return res.status(500).json({
+      message: 'Internal server error',
+    });
   }
 };
 
@@ -46,9 +91,49 @@ const getPaymentById = async (req, res) => {
   }
 };
 
+// Example route to check the payment status of a ride
+const getPaymentByRideId = async (req, res) => {
+  const { rideId } = req.params;
+
+  try {
+    // Find the ride in the database using the rideId
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      return res.status(404).json({ message: 'Ride not found' });
+    }
+
+    // Assuming you have a payment reference stored in the ride object
+    const paymentReference = `ride-${ride._id}`;
+
+    // Verify payment status with Paystack (replace with your payment service if needed)
+    const response = await axios.get(`https://api.paystack.co/transaction/verify/${paymentReference}`, {
+      headers: {
+        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,  // Use your Paystack secret key
+      },
+    });
+
+    const paymentData = response.data.data;
+
+    if (paymentData.status === 'success') {
+      // Update ride payment status to 'paid'
+      ride.payment_status = 'paid';
+      await ride.save();
+
+      return res.status(200).json({ message: 'Payment verified', paymentStatus: 'paid' });
+    } else {
+      return res.status(200).json({ message: 'Payment not yet made', paymentStatus: 'pending' });
+    }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
 module.exports = {
     createPayment,
     getPaymentById,
     getPayments,
-    getPaymentsByUser
+    getPaymentsByUser,
+    getPaymentByRideId
 }
