@@ -90,24 +90,23 @@ const getPaymentById = async (req, res) => {
   }
 };
 
-// Example route to check the payment status of a ride
 const getPaymentByRideId = async (req, res) => {
-  const { rideId } = req.params;
+  const { id: rideId } = req.params;
 
   try {
-    // Find the ride in the database using the rideId
-    const ride = await Ride.findOne(rideId);
+    // Find the ride by its ID
+    const ride = await Ride.findById(rideId);
     if (!ride) {
       return res.status(404).json({ message: 'Ride not found' });
     }
 
-    // Assuming you have a payment reference stored in the ride object
+    // Assuming the payment reference is correctly stored in the ride object
     const paymentReference = `ride-${ride._id}`;
 
     // Verify payment status with Paystack (replace with your payment service if needed)
     const response = await axios.get(`https://api.paystack.co/transaction/verify/${paymentReference}`, {
       headers: {
-        Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,  // Use your Paystack secret key
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,  // Use your Paystack secret key
       },
     });
 
@@ -115,18 +114,22 @@ const getPaymentByRideId = async (req, res) => {
 
     if (paymentData.status === 'success') {
       // Update ride payment status to 'paid'
-      ride.payment_status = 'paid';
-      await ride.save();
+      if (ride.payment_status !== 'paid') {
+        ride.payment_status = 'paid';
+        await ride.save();  // Save the updated ride
+      }
 
       return res.status(200).json({ message: 'Payment verified', paymentStatus: 'paid' });
     } else {
+      // Payment is not yet successful
       return res.status(200).json({ message: 'Payment not yet made', paymentStatus: 'pending' });
     }
   } catch (error) {
-    console.error('Error verifying payment:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error('Error verifying payment:', error.response ? error.response.data : error.message);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 module.exports = {
