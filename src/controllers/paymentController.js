@@ -92,10 +92,11 @@ const getPaymentById = async (req, res) => {
 
 // Example route to check the payment status of a ride
 const getPaymentByRideId = async (req, res) => {
+  const { rideId } = req.params;
 
   try {
     // Find the ride in the database using the rideId
-    const ride = await Ride.findById(req.params.id);
+    const ride = await Ride.findOne(rideId);
     if (!ride) {
       return res.status(404).json({ message: 'Ride not found' });
     }
