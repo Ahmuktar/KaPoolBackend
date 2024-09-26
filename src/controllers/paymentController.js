@@ -40,6 +40,10 @@ const createPayment = async (req, res) => {
       const payment = new Payment(paymentData);
       await payment.save();
 
+      const ride = await Ride.findById(ride_id);
+      ride.payment_status = 'paid';
+      await ride.save();
+
       return res.status(200).json({
         message: 'Payment verified and saved successfully',
         payment: paymentData,

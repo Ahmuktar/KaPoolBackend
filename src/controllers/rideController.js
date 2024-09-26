@@ -36,8 +36,8 @@ const getRideById = async (req, res) => {
 const getActiveRides = async (req, res) => {
   try {
     const activeRides = await Ride.find({
-      ride_status: { $ne: 'completed' },
-      ride_status: { $ne: 'canceled' },
+      ride_status: { $nin: ['completed', 'canceled'] }, // Exclude 'completed' and 'canceled'
+      driver_id: req.params.driverId
     });
 
     return res.status(200).json(activeRides);
@@ -46,6 +46,7 @@ const getActiveRides = async (req, res) => {
     return res.status(500).json({ message: 'An error occurred while fetching active rides.' });
   }
 };
+
 
 // Update ride status
 const updateRideStatus = async (req, res) => {

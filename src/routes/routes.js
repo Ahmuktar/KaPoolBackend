@@ -21,7 +21,7 @@ router.post('/rides', rideController.createRide);
 // Get a specific ride
 router.get('/rides/:id', rideController.getRideById);
 router.get('/rides', rideController.getRides);
-router.get('/rides/active', rideController.getActiveRides);
+router.get('/rides/:driverId/active', rideController.getActiveRides);
 // Update a ride's status
 router.put('/rides/:id/status', rideController.updateRideStatus);
 // Get all rides for a driver
