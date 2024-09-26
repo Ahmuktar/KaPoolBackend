@@ -5,7 +5,7 @@ const axios = require('axios');
 const Ride = require('../models/Ride');
 const router = express.Router();
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+const PAYSTACK_SECRET_KEY = 'sk_test_5e60c09e2f76e12ff810bcae66bff147369b4077';
 
 // Create a payment
 const createPayment = async (req, res) => {
@@ -16,7 +16,7 @@ const createPayment = async (req, res) => {
   }
 
   try {
-    // Make a request to Paystack's payment verification endpoint
+    // Verify payment with Paystack
     const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: {
         Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
@@ -25,19 +25,18 @@ const createPayment = async (req, res) => {
 
     const { status, data } = response;
 
-    if (status === 200 && data.status === 'success') {
+    if (status === 200 && data.status === true) {
       const paymentDetails = data.data;
 
-      // Extract relevant payment information
       const paymentData = {
         transaction_id: paymentDetails.reference,
-        amount: paymentDetails.amount / 100, // Paystack amount is in kobo, convert to naira (or smallest currency unit)
+        amount: paymentDetails.amount / 100, // Convert from kobo to Naira
         status: 'paid',
         email: paymentDetails.customer.email,
-        ride_id: ride_id
+        ride_id: ride_id,
       };
 
-      // Save payment to the database
+      // Save payment
       const payment = new Payment(paymentData);
       await payment.save();
 
@@ -46,15 +45,11 @@ const createPayment = async (req, res) => {
         payment: paymentData,
       });
     } else {
-      return res.status(400).json({
-        message: 'Payment verification failed',
-      });
+      return res.status(400).json({ message: 'Payment verification failed' });
     }
   } catch (error) {
     console.error('Error verifying payment:', error.message);
-    return res.status(500).json({
-      message: 'Internal server error',
-    });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
