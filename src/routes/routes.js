@@ -47,7 +47,7 @@ router.delete('/drivers/:id', driverController.deleteDriver);
 // Payment routes
 router.post('/payments', paymentController.createPayment);
 router.get('/payments', paymentController.getPayments);
-router.get('/payments/:id', paymentController.getPaymentById);
+router.get('/payments/:id', paymentController.getPaymentByRideId);
 router.get('/payments/:id/user', paymentController.getPaymentsByUser);
 
 // Review routes

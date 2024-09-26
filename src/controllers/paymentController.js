@@ -96,7 +96,7 @@ const getPaymentByRideId = async (req, res) => {
 
   try {
     // Find the ride in the database using the rideId
-    const ride = await Ride.findById(rideId);
+    const ride = await Ride.findOne(rideId);
     if (!ride) {
       return res.status(404).json({ message: 'Ride not found' });
     }
